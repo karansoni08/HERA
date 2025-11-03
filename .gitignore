@@ -15,11 +15,12 @@ data/**
 !data/*.csv
 
 # Outputs (commit CSV/JSON/PNGs so they render on GitHub)
-outputs/**
+!outputs/**
 !outputs/.gitkeep
 !outputs/**/*.csv
 !outputs/**/*.json
 !outputs/**/*.png
+
 
 # Docs
 docs/*.pdf
