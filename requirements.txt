@@ -1,0 +1,11 @@
+pandas
+numpy
+matplotlib
+Faker
+jsonschema
+requests
+black
+isort
+flake8
+pytest
+pytest-cov
