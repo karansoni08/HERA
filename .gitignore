@@ -10,7 +10,7 @@ __pycache__/
 .idea/
 
 # Data (commit CSVs so GitHub shows tables)
-data/**
+!data/**
 !data/.gitkeep
 !data/*.csv
 
@@ -21,9 +21,10 @@ data/**
 !outputs/**/*.json
 !outputs/**/*.png
 
-
+!src/**
 # Docs
-docs/*.pdf
+!docs/*.pdf
 
 .coverage
 htmlcov/
+!tests/**
