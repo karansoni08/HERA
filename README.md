@@ -48,29 +48,33 @@
 ---
 ## 🏗️ 4. High-Level Architecture
 
-+--------------------+ +--------------------+ +--------------------+
-| Data Sources | ----> | Feature Engineering| ----> | Risk Scoring |
-| (synthetic CSVs) | | (Phase 3) | | (Phase 4 HTI) |
-+--------------------+ +--------------------+ +--------------------+
-| | |
-v v v
-data/.csv outputs/user_features.csv outputs/risk_scores.csv
-|
-v
-+------------------------+
-| OMEO Mapping (Phase 4)|
-+------------------------+
-|
-v
-outputs/risk_scores_mapped.csv
-|
-+--------------------------+-------------------------+
-| |
-v v
-+----------------------------+ +----------------------------+
-| Visuals (Phase 6) | | Report Builder (Phase 8) |
-+----------------------------+ +----------------------------+
-outputs/charts/.png docs/report.md
++-------------------+        +-----------------------+        +----------------------+
+|  Data Sources     |  -->   |  Feature Engineering  |  -->   |   Risk Scoring (HTI) |
+|  (synthetic CSVs) |        |   (Phase 3)           |        |   (Phase 4)          |
++-------------------+        +-----------------------+        +----------------------+
+        |                                |                               |
+        v                                v                               v
+   data/*.csv                  outputs/user_features.csv          outputs/risk_scores.csv
+                                                                         |
+                                                                         v
+                                                             +--------------------------+
+                                                             |    OMEO Mapping          |
+                                                             | (Origin/Method/Exposure/ |
+                                                             |          Outcome)        |
+                                                             +--------------------------+
+                                                                         |
+                                                                         v
+                                                         outputs/risk_scores_mapped.csv
+                                                                         |
+                                               +-------------------------+-------------------------+
+                                               |                                                   |
+                                               v                                                   v
+                                  +---------------------------+                    +----------------------------+
+                                  |    Visualization          |                    |      Report Builder        |
+                                  |     (Phase 6)             |                    |        (Phase 8)           |
+                                  +---------------------------+                    +----------------------------+
+                                  outputs/charts/*.png                               docs/report.md, data_preview.md
+
 
 ---
 
