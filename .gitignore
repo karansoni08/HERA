@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# VS Code / IDE
+.vscode/
+.DS_Store
+.idea/
+
+# Data (commit CSVs so GitHub shows tables)
+data/**
+!data/.gitkeep
+!data/*.csv
+
+# Outputs (commit CSV/JSON/PNGs so they render on GitHub)
+outputs/**
+!outputs/.gitkeep
+!outputs/**/*.csv
+!outputs/**/*.json
+!outputs/**/*.png
+
+# Docs
+docs/*.pdf
+
+.coverage
+htmlcov/
