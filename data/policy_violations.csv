@@ -1,0 +1,55 @@
+user_id,timestamp,violation_type,severity,repeat_count,origin_type
+USR0045,2025-08-07T04:40:39.371966,Access Violation,low,1,employee
+USR0029,2025-08-07T05:29:41.371749,Phishing Response,low,2,employee
+USR0032,2025-08-07T15:29:26.371789,Policy Breach,low,3,employee
+USR0040,2025-08-08T00:35:48.371889,Policy Breach,low,2,employee
+USR0069,2025-08-08T23:01:27.372300,Phishing Response,high,1,employee
+USR0043,2025-08-11T06:33:57.371936,Access Violation,low,3,employee
+USR0098,2025-08-12T11:10:40.372678,Phishing Response,medium,3,employee
+USR0089,2025-08-12T14:44:31.372564,Policy Breach,low,0,employee
+USR0042,2025-08-17T03:09:18.371918,Phishing Response,low,3,employee
+USR0076,2025-08-17T18:13:07.372390,Policy Breach,high,1,employee
+USR0037,2025-08-21T17:06:54.371849,Access Violation,low,3,employee
+USR0060,2025-08-22T05:39:05.372175,Phishing Response,low,0,employee
+USR0029,2025-08-22T20:06:56.371749,Policy Breach,medium,1,employee
+USR0040,2025-08-23T00:06:38.371889,Access Violation,low,0,employee
+USR0068,2025-08-23T23:32:16.372283,Data Transfer Without Approval,low,3,employee
+USR0052,2025-08-25T20:35:59.372075,Policy Breach,medium,2,employee
+USR0051,2025-08-26T01:02:11.372055,Data Transfer Without Approval,medium,2,employee
+USR0045,2025-08-31T12:28:15.371966,Policy Breach,low,3,employee
+USR0043,2025-08-31T12:46:07.371936,Policy Breach,low,3,employee
+USR0069,2025-09-01T15:29:35.372300,Access Violation,low,3,employee
+USR0050,2025-09-02T11:17:00.372037,Policy Breach,low,3,employee
+USR0007,2025-09-02T22:18:33.371449,Phishing Response,low,2,employee
+USR0007,2025-09-03T19:55:49.371449,Access Violation,medium,1,employee
+USR0093,2025-09-06T20:15:52.372617,Policy Breach,low,3,employee
+USR0023,2025-09-07T07:12:20.371661,Access Violation,high,3,employee
+USR0068,2025-09-09T03:04:00.372283,Access Violation,medium,2,employee
+USR0049,2025-09-10T15:08:51.372018,Data Transfer Without Approval,medium,3,employee
+USR0063,2025-09-10T22:18:14.372219,Policy Breach,low,0,employee
+USR0089,2025-09-15T12:51:21.372564,Data Transfer Without Approval,low,2,employee
+USR0054,2025-09-18T08:11:34.372101,Policy Breach,low,2,employee
+USR0007,2025-09-21T13:34:18.371449,Policy Breach,low,3,employee
+USR0078,2025-09-26T03:07:37.372420,Policy Breach,low,3,employee
+USR0049,2025-09-26T20:35:57.372018,Phishing Response,low,3,employee
+USR0023,2025-09-26T21:53:30.371661,Policy Breach,medium,1,employee
+USR0037,2025-09-26T23:43:13.371849,Policy Breach,low,2,employee
+USR0027,2025-09-26T23:50:55.371719,Access Violation,high,1,employee
+USR0024,2025-09-29T22:07:40.371680,Policy Breach,low,0,employee
+USR0027,2025-09-30T09:27:15.371719,Phishing Response,low,0,employee
+USR0050,2025-10-04T15:41:19.372037,Data Transfer Without Approval,low,3,employee
+USR0051,2025-10-05T18:25:56.372055,Policy Breach,low,0,employee
+USR0018,2025-10-09T04:01:13.371600,Phishing Response,low,2,employee
+USR0075,2025-10-09T15:33:57.372375,Data Transfer Without Approval,low,1,employee
+USR0060,2025-10-09T16:48:10.372175,Phishing Response,low,3,employee
+USR0078,2025-10-10T04:31:08.372420,Access Violation,high,0,employee
+USR0078,2025-10-11T16:03:26.372420,Policy Breach,medium,3,employee
+USR0054,2025-10-13T02:28:11.372101,Policy Breach,low,2,employee
+USR0077,2025-10-15T03:44:26.372404,Policy Breach,low,0,employee
+USR0088,2025-10-22T19:17:51.372549,Access Violation,high,1,employee
+USR0062,2025-10-23T14:49:58.372204,Phishing Response,medium,2,employee
+USR0063,2025-10-24T17:25:14.372219,Access Violation,low,1,employee
+USR0017,2025-10-25T07:54:23.371584,Data Transfer Without Approval,medium,3,employee
+USR0051,2025-10-26T04:18:27.372055,Policy Breach,low,0,employee
+USR0083,2025-10-30T04:41:32.372488,Data Transfer Without Approval,low,3,employee
+USR0042,2025-10-31T17:16:25.371918,Access Violation,low,1,employee
