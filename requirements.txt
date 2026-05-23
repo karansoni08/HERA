@@ -1,8 +1,6 @@
-fastapi
-uvicorn
+ollama
 pandas
 numpy
 scikit-learn
-ollama
-pydantic
 pyyaml
+psutil
