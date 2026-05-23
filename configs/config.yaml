@@ -1,0 +1,8 @@
+system:
+  name: HERA
+
+ollama:
+  model: qwen2.5:7b
+
+thresholds:
+  anomaly_score: 70
