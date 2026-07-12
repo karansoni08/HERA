@@ -5,9 +5,7 @@ from datetime import datetime
 class LogCollector:
 
     def collect(self):
-
         sample_logs = [
-
             {
                 "user": "john",
                 "action": "login",
@@ -17,7 +15,6 @@ class LogCollector:
                 "privilege_escalation": False,
                 "timestamp": str(datetime.now())
             },
-
             {
                 "user": "admin",
                 "action": "mass_download",
@@ -27,7 +24,5 @@ class LogCollector:
                 "privilege_escalation": True,
                 "timestamp": str(datetime.now())
             }
-
         ]
-
         return [random.choice(sample_logs)]

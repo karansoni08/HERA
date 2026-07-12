@@ -1,6 +1,1 @@
 ollama
-pandas
-numpy
-scikit-learn
-pyyaml
-psutil

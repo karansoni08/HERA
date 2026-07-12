@@ -1,57 +1,30 @@
 class ResponseEngine:
 
-    def build_response(
-        self,
-        threat,
-        mitigation,
-        reasoning
-    ):
-
-        response = f"""
-
-========== HERA ALERT ==========
-
-Threat Type:
-{threat['threat_type']}
-
-Origin:
-{threat['origin']}
-
-Severity:
-{threat['severity']}
-
-Confidence:
-{threat['confidence']}%
-
-Indicators:
-"""
-
+    def build_response(self, threat, mitigation, reasoning):
+        lines = [
+            "========== HERA ALERT ==========",
+            f"Threat Type: {threat['threat_type']}",
+            f"Origin:      {threat['origin']}",
+            f"Severity:    {threat['severity']}",
+            f"Confidence:  {threat['confidence']}%",
+            "\nIndicators:",
+        ]
         for i in threat["indicators"]:
+            lines.append(f"  - {i}")
 
-            response += f"\n - {i}"
-
-        response += "\n\nContainment Actions:"
-
+        lines.append("\nContainment Actions:")
         for c in mitigation["containment"]:
+            lines.append(f"  - {c}")
 
-            response += f"\n - {c}"
-
-        response += "\n\nMitigation Steps:"
-
+        lines.append("\nMitigation Steps:")
         for m in mitigation["mitigation"]:
+            lines.append(f"  - {m}")
 
-            response += f"\n - {m}"
-
-        response += "\n\nRecovery Actions:"
-
+        lines.append("\nRecovery Actions:")
         for r in mitigation["recovery"]:
+            lines.append(f"  - {r}")
 
-            response += f"\n - {r}"
+        lines.append(f"\nAI Reasoning:\n{reasoning}")
+        lines.append("================================\n")
 
-        response += "\n\nAI Reasoning:"
-
-        response += f"\n{reasoning}"
-
-        response += "\n\n===============================\n"
-
-        return response
+        return "\n".join(lines)

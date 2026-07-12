@@ -8,83 +8,40 @@ from core.attribution.threat_classifier import ThreatClassifier
 from core.correlation.correlation_engine import CorrelationEngine
 from core.response_engine.mitigation_generator import MitigationGenerator
 from core.response_engine.response_engine import ResponseEngine
-from core.alerting.alert_manager import AlertManager
 from core.ai_reasoning.autonomous_reasoning import AutonomousReasoning
 
 
 class HERA:
 
     def __init__(self):
-
         self.collector = LogCollector()
-
         self.normalizer = EventNormalizer()
-
         self.baseline = UserBaselineEngine()
-
         self.detector = AnomalyDetector()
-
         self.classifier = ThreatClassifier()
-
         self.correlation = CorrelationEngine()
-
         self.mitigation = MitigationGenerator()
-
         self.response_engine = ResponseEngine()
-
-        self.alerting = AlertManager()
-
         self.reasoning = AutonomousReasoning()
 
     def run(self):
-
         print("[HERA] Monitoring Started...\n")
-
         while True:
-
             raw_logs = self.collector.collect()
-
             normalized_logs = self.normalizer.normalize(raw_logs)
-
-            baseline_results = self.baseline.analyze(
-                normalized_logs
-            )
-
-            anomalies = self.detector.detect(
-                baseline_results
-            )
+            baseline_results = self.baseline.analyze(normalized_logs)
+            anomalies = self.detector.detect(baseline_results)
 
             if anomalies:
-
-                correlated = self.correlation.correlate(
-                    anomalies
-                )
-
-                threat = self.classifier.classify(
-                    correlated
-                )
-
-                mitigation = self.mitigation.generate(
-                    threat
-                )
-
-                reasoning = self.reasoning.reason(
-                    threat
-                )
-
-                response = self.response_engine.build_response(
-                    threat,
-                    mitigation,
-                    reasoning
-                )
-
-                self.alerting.send_alert(response)
+                correlated = self.correlation.correlate(anomalies)
+                threat = self.classifier.classify(correlated)
+                mitigation = self.mitigation.generate(threat)
+                reasoning = self.reasoning.reason(threat)
+                response = self.response_engine.build_response(threat, mitigation, reasoning)
+                print(response)
 
             time.sleep(3)
 
 
 if __name__ == "__main__":
-
-    hera = HERA()
-
-    hera.run()
+    HERA().run()
