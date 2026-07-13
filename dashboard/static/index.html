@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HERA — Security Intelligence Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #eef0f4;
+      color: #1a2b5e;
+      font-size: 14px;
+    }
+
+    /* ── Nav ──────────────────────────────────────── */
+    .nav {
+      background: #0f1e45;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #fff;
+      padding: 16px 0;
+      margin-right: 8px;
+    }
+    .nav-brand span { color: #e8a020; }
+    .nav-tagline {
+      font-size: 11px;
+      color: #8899bb;
+      margin-right: 36px;
+      padding-top: 2px;
+    }
+    .nav-tab {
+      padding: 18px 22px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: #8899bb;
+      transition: color .15s, border-color .15s;
+      user-select: none;
+    }
+    .nav-tab.active { color: #fff; border-bottom-color: #e8a020; }
+    .nav-tab:hover  { color: #fff; }
+
+    /* ── Pages ────────────────────────────────────── */
+    .page { display: none; padding: 24px 28px; }
+    .page.active { display: block; }
+    .page-subtitle { font-size: 13px; color: #7a8599; margin-bottom: 18px; }
+
+    /* ── Card ─────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border: 1px solid #dde1ea;
+      border-radius: 10px;
+      padding: 22px 24px;
+    }
+
+    /* ── Card header ──────────────────────────────── */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .card-title { font-size: 15px; font-weight: 700; }
+
+    /* ── Filters & dropdowns ──────────────────────── */
+    .filters { display: flex; gap: 8px; }
+
+    .filter-wrap { position: relative; }
+
+    .filter-btn {
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: 5px;
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #333;
+      white-space: nowrap;
+      transition: background .1s, border-color .15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .filter-btn:hover  { background: #f4f5f8; }
+    .filter-btn.active { border-color: #1a2b5e; color: #1a2b5e; background: #f0f3fa; }
+
+    .dropdown-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid #dde1ea;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 200;
+      min-width: 150px;
+      padding: 5px 0;
+      animation: dropIn .12s ease;
+    }
+    .dropdown-panel.open { display: block; }
+
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      padding: 8px 14px 4px;
+    }
+    .dropdown-divider {
+      height: 1px;
+      background: #eef0f4;
+      margin: 4px 0;
+    }
+
+    .dropdown-option {
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background .08s;
+    }
+    .dropdown-option:hover   { background: #f4f5f8; }
+    .dropdown-option.selected { font-weight: 700; color: #1a2b5e; background: #f0f3fa; }
+
+    .check-icon { font-size: 11px; color: #1a2b5e; width: 12px; flex-shrink: 0; }
+
+    /* ── KPI row ──────────────────────────────────── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+    .kpi-card {
+      border: 1px solid #dde1ea;
+      border-radius: 7px;
+      padding: 16px;
+      position: relative;
+      transition: box-shadow .15s;
+    }
+    .kpi-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+    .kpi-label { font-size: 11px; color: #7a8599; margin-bottom: 8px; }
+    .kpi-value { font-size: 26px; font-weight: 700; color: #1a2b5e; margin-bottom: 6px; line-height: 1; }
+    .kpi-note  { font-size: 12px; display: flex; align-items: center; gap: 3px; }
+    .kpi-note.bad  { color: #d9534f; }
+    .kpi-note.good { color: #3a9e5f; }
+
+    .callout-badge {
+      position: absolute;
+      top: -10px; right: -10px;
+      width: 22px; height: 22px;
+      background: #e8a020;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Charts row ───────────────────────────────── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .chart-title { font-size: 13px; color: #333; }
+    .chart-badge {
+      width: 22px; height: 22px;
+      background: #e8a020;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Footnotes ────────────────────────────────── */
+    .footnotes {
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #eef0f4;
+      padding-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 28px;
+    }
+    .footnotes b { color: #e8a020; }
+
+    /* ── Active filter pills ──────────────────────── */
+    .active-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      min-height: 0;
+    }
+    .filter-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #eef2ff;
+      border: 1px solid #c5cef5;
+      color: #1a2b5e;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .filter-pill .remove {
+      cursor: pointer;
+      opacity: .6;
+      font-size: 13px;
+      line-height: 1;
+    }
+    .filter-pill .remove:hover { opacity: 1; }
+
+    /* ── Operations ───────────────────────────────── */
+    .last-updated { font-size: 11px; color: #aaa; text-align: right; margin-bottom: 10px; }
+
+    .alert-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #fdecea;
+      border: 1px solid #f5b7b1;
+      border-radius: 7px;
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #7b2020;
+      line-height: 1.5;
+    }
+    .alert-banner.hidden { display: none; }
+    .alert-icon { font-size: 18px; padding-top: 1px; flex-shrink: 0; }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    .ops-col-title { font-size: 13px; font-weight: 700; color: #1a2b5e; margin-bottom: 14px; }
+
+    /* ── Heatmap ──────────────────────────────────── */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .hm-cell {
+      border-radius: 7px;
+      padding: 18px 10px;
+      text-align: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .hm-cell.critical { background: #d9534f; }
+    .hm-cell.high     { background: #e8820a; }
+    .hm-cell.medium   { background: #e8a020; }
+    .hm-cell.low      { background: #4caf50; }
+    .hm-cell { cursor: pointer; transition: opacity .15s, transform .1s; user-select: none; }
+    .hm-cell:hover    { opacity: .85; transform: scale(1.03); }
+    .hm-cell.selected { outline: 3px solid #fff; box-shadow: 0 0 0 4px #1a2b5e; transform: scale(1.03); }
+
+    .heatmap-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      font-size: 11px;
+      color: #666;
+    }
+    .legend-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      margin-right: 3px;
+      vertical-align: middle;
+    }
+
+    /* ── Incidents ────────────────────────────────── */
+    .incident-item {
+      border: 1px solid #dde1ea;
+      border-radius: 6px;
+      padding: 10px 13px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .incident-time   { font-size: 11px; color: #aaa; flex-shrink: 0; }
+    .incident-body   { flex: 1; }
+    .incident-user   { font-weight: 700; font-size: 13px; }
+    .incident-action { font-size: 12px; color: #7a8599; margin-top: 2px; }
+    .severity-badge  {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .severity-badge.Critical { background: #d9534f; }
+    .severity-badge.High     { background: #e8820a; }
+    .severity-badge.Medium   { background: #e8a020; }
+    .severity-badge.Low      { background: #4caf50; }
+
+    .ai-response {
+      margin-top: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a2b5e;
+      border-top: 1px solid #eef0f4;
+      padding-top: 12px;
+    }
+    .ai-response span { color: #e8820a; }
+
+    /* ── TRACE panel ──────────────────────────────── */
+    .trace-panel {
+      margin-top: 24px;
+      border-top: 2px solid #eef0f4;
+      padding-top: 20px;
+    }
+    .trace-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .trace-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a2b5e;
+    }
+    .trace-analysis-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a2b5e;
+      background: #eef2ff;
+      border: 1px solid #c5cef5;
+      border-radius: 5px;
+      padding: 3px 10px;
+    }
+    .trace-subject {
+      font-size: 12px;
+      color: #7a8599;
+      margin-left: auto;
+    }
+    .trace-severity-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .trace-severity-tag.Critical { background: #d9534f; }
+    .trace-severity-tag.High     { background: #e8820a; }
+    .trace-severity-tag.Medium   { background: #e8a020; }
+    .trace-severity-tag.Low      { background: #4caf50; }
+
+    .trace-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .trace-cell {
+      border: 1px solid #dde1ea;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .trace-cell-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .trace-letter {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .trace-letter.V { background: #1a2b5e; }
+    .trace-letter.I { background: #d9534f; }
+    .trace-letter.C { background: #e8820a; }
+    .trace-letter.A { background: #6f42c1; }
+
+    .trace-cell-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #7a8599;
+    }
+    .trace-cell-text {
+      font-size: 12px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .trace-remediation {
+      border: 1px solid #d4edda;
+      border-radius: 8px;
+      background: #f6fff8;
+      padding: 14px 18px;
+    }
+    .trace-remediation-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .trace-letter.R { background: #3a9e5f; }
+    .trace-rem-steps {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .trace-rem-steps li {
+      font-size: 12px;
+      color: #1a5e2b;
+      background: #e6f4ea;
+      border: 1px solid #b7dfbe;
+      border-radius: 5px;
+      padding: 5px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .trace-rem-steps li::before {
+      content: '→';
+      color: #3a9e5f;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ──────────────────────────────────────────── -->
+<nav class="nav">
+  <div class="nav-brand">HER<span>A</span></div>
+  <div class="nav-tagline">Human Engineered Research Analysis</div>
+  <div class="nav-tab active" onclick="switchTab(this,'executive')">Executive View</div>
+  <div class="nav-tab"       onclick="switchTab(this,'operations')">Operations View</div>
+</nav>
+
+<!-- ── Executive View ──────────────────────────────────────── -->
+<div id="page-executive" class="page active">
+  <p class="page-subtitle">Page 1 of 2 — threat trends vs. baselines, for CISO &amp; executive leadership</p>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">HERA — Security Intelligence Executive Overview</div>
+
+      <div class="filters">
+
+        <!-- Period -->
+        <div class="filter-wrap" data-filter="period" data-default="week">
+          <button class="filter-btn" onclick="toggleDropdown(event,this)">
+            Week <span>▾</span>
+          </button>
+          <div class="dropdown-panel">
+            <div class="dropdown-section-label">Time Period</div>
+            <div class="dropdown-option" data-value="day"   data-label="1 Day"  onclick="selectOption(this)"><span class="check-icon"></span>1 Day</div>
+            <div class="dropdown-option selected" data-value="week"  data-label="Week"  onclick="selectOption(this)"><span class="check-icon">✓</span>Week</div>
+            <div class="dropdown-option" data-value="month" data-label="Month"  onclick="selectOption(this)"><span class="check-icon"></span>Month</div>
+            <div class="dropdown-option" data-value="year"  data-label="Year"   onclick="selectOption(this)"><span class="check-icon"></span>Year</div>
+          </div>
+        </div>
+
+        <!-- Severity -->
+        <div class="filter-wrap" data-filter="severity" data-default="all">
+          <button class="filter-btn" onclick="toggleDropdown(event,this)">
+            Severity <span>▾</span>
+          </button>
+          <div class="dropdown-panel">
+            <div class="dropdown-section-label">Threat Severity</div>
+            <div class="dropdown-option selected" data-value="all"      data-label="Severity"  onclick="selectOption(this)"><span class="check-icon">✓</span>All</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-option" data-value="critical" data-label="Critical"  onclick="selectOption(this)"><span class="check-icon"></span><span style="display:inline-block;width:8px;height:8px;background:#d9534f;border-radius:2px;margin-right:4px"></span>Critical</div>
+            <div class="dropdown-option" data-value="high"     data-label="High"      onclick="selectOption(this)"><span class="check-icon"></span><span style="display:inline-block;width:8px;height:8px;background:#e8820a;border-radius:2px;margin-right:4px"></span>High</div>
+            <div class="dropdown-option" data-value="medium"   data-label="Medium"    onclick="selectOption(this)"><span class="check-icon"></span><span style="display:inline-block;width:8px;height:8px;background:#e8a020;border-radius:2px;margin-right:4px"></span>Medium</div>
+            <div class="dropdown-option" data-value="low"      data-label="Low"       onclick="selectOption(this)"><span class="check-icon"></span><span style="display:inline-block;width:8px;height:8px;background:#4caf50;border-radius:2px;margin-right:4px"></span>Low</div>
+          </div>
+        </div>
+
+        <!-- Origin -->
+        <div class="filter-wrap" data-filter="origin" data-default="all">
+          <button class="filter-btn" onclick="toggleDropdown(event,this)">
+            Origin <span>▾</span>
+          </button>
+          <div class="dropdown-panel">
+            <div class="dropdown-section-label">Threat Origin</div>
+            <div class="dropdown-option selected" data-value="all"      data-label="Origin"    onclick="selectOption(this)"><span class="check-icon">✓</span>All</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-option" data-value="internal" data-label="Internal"  onclick="selectOption(this)"><span class="check-icon"></span>Internal</div>
+            <div class="dropdown-option" data-value="external" data-label="External"  onclick="selectOption(this)"><span class="check-icon"></span>External</div>
+          </div>
+        </div>
+
+        <!-- User -->
+        <div class="filter-wrap" data-filter="user" data-default="all">
+          <button class="filter-btn" onclick="toggleDropdown(event,this)">
+            User <span>▾</span>
+          </button>
+          <div class="dropdown-panel">
+            <div class="dropdown-section-label">Filter by User</div>
+            <div class="dropdown-option selected" data-value="all"     data-label="User"    onclick="selectOption(this)"><span class="check-icon">✓</span>All Users</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-option" data-value="admin"  data-label="admin"   onclick="selectOption(this)"><span class="check-icon"></span>admin</div>
+            <div class="dropdown-option" data-value="john"   data-label="john"    onclick="selectOption(this)"><span class="check-icon"></span>john</div>
+            <div class="dropdown-option" data-value="alice"  data-label="alice"   onclick="selectOption(this)"><span class="check-icon"></span>alice</div>
+            <div class="dropdown-option" data-value="root"   data-label="root"    onclick="selectOption(this)"><span class="check-icon"></span>root</div>
+            <div class="dropdown-option" data-value="devops" data-label="devops"  onclick="selectOption(this)"><span class="check-icon"></span>devops</div>
+            <div class="dropdown-option" data-value="guest"  data-label="guest"   onclick="selectOption(this)"><span class="check-icon"></span>guest</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Active filter pills -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <div class="charts-row">
+      <div>
+        <div class="chart-header">
+          <span class="chart-title" id="trend-title">Threat detections — weekly trend vs baseline</span>
+          <div class="chart-badge">2</div>
+        </div>
+        <canvas id="trendChart" height="200"></canvas>
+      </div>
+      <div>
+        <div class="chart-header">
+          <span class="chart-title">Threat indicators breakdown</span>
+          <div class="chart-badge">3</div>
+        </div>
+        <canvas id="indicatorChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="footnotes">
+      <span><b>1</b> KPI cards: current threat metrics vs baseline, red/green status.</span>
+      <span><b>2</b> Trend reveals whether threat volume is escalating beyond baseline.</span>
+      <span><b>3</b> Indicator breakdown identifies the dominant attack vectors detected.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Operations View ─────────────────────────────────────── -->
+<div id="page-operations" class="page">
+  <p class="page-subtitle">Page 2 of 2 — live view refreshed every 5 minutes, for SOC analysts on the floor</p>
+
+  <div class="last-updated">Last updated: <span id="updated-time">—</span></div>
+
+  <div class="card">
+    <div id="alert-banner" class="alert-banner hidden">
+      <span class="alert-icon">⚠</span>
+      <span id="alert-msg"></span>
+    </div>
+
+    <div class="ops-grid">
+      <div>
+        <div class="ops-col-title">Live risk scores by user</div>
+        <canvas id="riskChart" height="220"></canvas>
+      </div>
+      <div>
+        <div class="ops-col-title">Threat severity by indicator (HERA)</div>
+        <div class="heatmap-grid" id="heatmap"></div>
+        <div class="heatmap-legend">
+          <span><span class="legend-dot" style="background:#d9534f"></span>Critical</span>
+          <span><span class="legend-dot" style="background:#e8820a"></span>High</span>
+          <span><span class="legend-dot" style="background:#e8a020"></span>Medium</span>
+          <span><span class="legend-dot" style="background:#4caf50"></span>Low</span>
+        </div>
+      </div>
+      <div>
+        <div class="ops-col-title">Recent incidents</div>
+        <div id="incident-list"></div>
+        <div class="ai-response" id="ai-response"></div>
+      </div>
+    </div>
+
+    <!-- ── TRACE findings ──────────────────────── -->
+    <div class="trace-panel" id="trace-panel" style="display:none">
+      <div class="trace-header">
+        <div class="trace-title">TRACE Vulnerability Analysis</div>
+        <div class="trace-analysis-label" id="trace-analysis-label"></div>
+        <div class="trace-subject" id="trace-subject"></div>
+        <div class="trace-severity-tag" id="trace-severity-tag"></div>
+      </div>
+
+      <div class="trace-grid">
+        <div class="trace-cell">
+          <div class="trace-cell-label">
+            <div class="trace-letter V">T</div>
+            <div class="trace-cell-name">Threat</div>
+          </div>
+          <div class="trace-cell-text" id="trace-threat"></div>
+        </div>
+        <div class="trace-cell">
+          <div class="trace-cell-label">
+            <div class="trace-letter I">E</div>
+            <div class="trace-cell-name">Exposure</div>
+          </div>
+          <div class="trace-cell-text" id="trace-exposure"></div>
+        </div>
+        <div class="trace-cell">
+          <div class="trace-cell-label">
+            <div class="trace-letter C">R</div>
+            <div class="trace-cell-name">Root Cause</div>
+          </div>
+          <div class="trace-cell-text" id="trace-root-cause"></div>
+        </div>
+        <div class="trace-cell">
+          <div class="trace-cell-label">
+            <div class="trace-letter A">A</div>
+            <div class="trace-cell-name">Actor</div>
+          </div>
+          <div class="trace-cell-text" id="trace-actor"></div>
+        </div>
+      </div>
+
+      <div class="trace-remediation">
+        <div class="trace-remediation-label">
+          <div class="trace-letter R">C</div>
+          <div class="trace-cell-name">Containment Steps</div>
+        </div>
+        <ul class="trace-rem-steps" id="trace-containment"></ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let trendChart, indicatorChart, riskChart, opsTimer;
+
+  // Filter state
+  const filters = { period: 'week', severity: 'all', origin: 'all', user: 'all' };
+
+  const TREND_TITLES = {
+    day:   'Threat detections — today (hourly) vs baseline',
+    week:  'Threat detections — weekly trend vs baseline',
+    month: 'Threat detections — monthly trend vs baseline',
+    year:  'Threat detections — yearly trend vs baseline',
+  };
+
+  /* ── Tab switching ─────────────────────────────── */
+  function switchTab(el, tab) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('page-' + tab).classList.add('active');
+    clearInterval(opsTimer);
+    if (tab === 'operations') {
+      loadOperations();
+      opsTimer = setInterval(loadOperations, 5 * 60 * 1000);
+    }
+  }
+
+  /* ── Dropdown toggle ───────────────────────────── */
+  function toggleDropdown(e, btn) {
+    e.stopPropagation();
+    const panel   = btn.nextElementSibling;
+    const wasOpen = panel.classList.contains('open');
+    document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if (!wasOpen) {
+      panel.classList.add('open');
+      btn.classList.add('active');
+    }
+  }
+
+  /* ── Option select ─────────────────────────────── */
+  function selectOption(el) {
+    const panel = el.closest('.dropdown-panel');
+    const wrap  = el.closest('.filter-wrap');
+    const btn   = wrap.querySelector('.filter-btn');
+    const key   = wrap.dataset.filter;
+    const val   = el.dataset.value;
+    const label = el.dataset.label;
+
+    // Update dropdown UI
+    panel.querySelectorAll('.dropdown-option').forEach(o => {
+      o.classList.remove('selected');
+      o.querySelector('.check-icon').textContent = '';
+    });
+    el.classList.add('selected');
+    el.querySelector('.check-icon').textContent = '✓';
+
+    // Update button label
+    btn.innerHTML = label + ' <span>▾</span>';
+    btn.classList.remove('active');
+    panel.classList.remove('open');
+
+    // Update state & reload
+    filters[key] = val;
+    renderActivePills();
+    loadExecutive();
+  }
+
+  /* ── Active filter pills ───────────────────────── */
+  function renderActivePills() {
+    const wrap = document.getElementById('active-filters');
+    const defaults = { period: 'week', severity: 'all', origin: 'all', user: 'all' };
+    const pills = Object.entries(filters)
+      .filter(([k, v]) => v !== defaults[k])
+      .map(([k, v]) => `
+        <div class="filter-pill">
+          ${k}: <strong>${v}</strong>
+          <span class="remove" onclick="resetFilter('${k}')">×</span>
+        </div>
+      `);
+    wrap.innerHTML = pills.join('');
+  }
+
+  function resetFilter(key) {
+    const defaults = { period: 'week', severity: 'all', origin: 'all', user: 'all' };
+    filters[key] = defaults[key];
+
+    // Reset the dropdown option UI
+    const wrap  = document.querySelector(`.filter-wrap[data-filter="${key}"]`);
+    const btn   = wrap.querySelector('.filter-btn');
+    const panel = wrap.querySelector('.dropdown-panel');
+    panel.querySelectorAll('.dropdown-option').forEach(o => {
+      const isDefault = o.dataset.value === defaults[key];
+      o.classList.toggle('selected', isDefault);
+      o.querySelector('.check-icon').textContent = isDefault ? '✓' : '';
+    });
+    btn.innerHTML = wrap.dataset.default === key
+      ? defaults[key] + ' <span>▾</span>'
+      : wrap.querySelector('.dropdown-option.selected').dataset.label + ' <span>▾</span>';
+
+    // Restore button label to default label
+    const defaultOption = wrap.querySelector(`.dropdown-option[data-value="${defaults[key]}"]`);
+    btn.innerHTML = defaultOption.dataset.label + ' <span>▾</span>';
+
+    renderActivePills();
+    loadExecutive();
+  }
+
+  /* ── Chart data label plugin ───────────────────── */
+  const dataLabelPlugin = {
+    id: 'dataLabels',
+    afterDraw(chart) {
+      if (!chart.config.options.showDataLabels) return;
+      const { ctx } = chart;
+      chart.data.datasets.forEach((ds, di) => {
+        chart.getDatasetMeta(di).data.forEach((bar, i) => {
+          const v = ds.data[i];
+          ctx.save();
+          ctx.fillStyle = '#333';
+          ctx.font = 'bold 12px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(v, bar.x, bar.y - 4);
+          ctx.restore();
+        });
+      });
+    }
+  };
+  Chart.register(dataLabelPlugin);
+
+  /* ── Executive data load ───────────────────────── */
+  async function loadExecutive() {
+    const params = new URLSearchParams(filters);
+    const d = await fetch('/api/executive?' + params).then(r => r.json());
+
+    // Update trend chart title
+    document.getElementById('trend-title').textContent = TREND_TITLES[filters.period] || TREND_TITLES.week;
+
+    // KPI cards
+    document.getElementById('kpi-row').innerHTML = d.kpis.map(k => `
+      <div class="kpi-card">
+        ${k.badge ? '<div class="callout-badge">1</div>' : ''}
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value">${k.value}</div>
+        <div class="kpi-note ${k.good ? 'good' : 'bad'}">
+          ${k.trend_up ? '▲' : '▼'} ${k.note}
+        </div>
+      </div>
+    `).join('');
+
+    // Trend line chart
+    const maxVal  = Math.max(...d.threat_trend.actual, ...d.threat_trend.baseline);
+    const stepSize = maxVal > 1000 ? 200 : maxVal > 200 ? 50 : maxVal > 50 ? 20 : 10;
+
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(document.getElementById('trendChart'), {
+      type: 'line',
+      data: {
+        labels: d.threat_trend.labels,
+        datasets: [
+          {
+            label: 'Detections',
+            data: d.threat_trend.actual,
+            borderColor: '#1a2b5e',
+            backgroundColor: 'rgba(26,43,94,0.08)',
+            fill: true,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#1a2b5e',
+            pointRadius: 4,
+            tension: 0.3
+          },
+          {
+            label: 'Baseline',
+            data: d.threat_trend.baseline,
+            borderColor: '#e8a020',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [6, 3],
+            pointBackgroundColor: '#e8a020',
+            pointRadius: 3,
+            tension: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 400 },
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } } },
+        scales: { y: { min: 0, ticks: { stepSize } } }
+      }
+    });
+
+    // Indicator bar chart
+    const maxInd   = Math.max(...d.indicators.counts);
+    const indStep  = maxInd > 500 ? 200 : maxInd > 100 ? 50 : maxInd > 30 ? 10 : 5;
+
+    if (indicatorChart) indicatorChart.destroy();
+    indicatorChart = new Chart(document.getElementById('indicatorChart'), {
+      type: 'bar',
+      data: {
+        labels: d.indicators.labels,
+        datasets: [{
+          data: d.indicators.counts,
+          backgroundColor: ['#d9534f', '#e8820a', '#1a2b5e', '#e8a020'],
+          borderRadius: 3,
+          barPercentage: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        showDataLabels: true,
+        animation: { duration: 400 },
+        plugins: { legend: { display: false } },
+        scales: { y: { min: 0, ticks: { stepSize: indStep } } }
+      }
+    });
+  }
+
+  /* ── Operations data load ──────────────────────── */
+  async function loadOperations() {
+    const d = await fetch('/api/operations').then(r => r.json());
+
+    // Alert banner
+    const banner = document.getElementById('alert-banner');
+    if (d.alert.active) {
+      banner.classList.remove('hidden');
+      document.getElementById('alert-msg').textContent = d.alert.message;
+    } else {
+      banner.classList.add('hidden');
+    }
+
+    // Risk chart (horizontal bar)
+    if (riskChart) riskChart.destroy();
+    riskChart = new Chart(document.getElementById('riskChart'), {
+      type: 'bar',
+      data: {
+        labels: d.user_risks.map(u => u.user),
+        datasets: [{
+          data: d.user_risks.map(u => u.risk_score),
+          backgroundColor: d.user_risks.map(u =>
+            u.risk_score >= 70 ? '#d9534f' :
+            u.risk_score >= 50 ? '#e8820a' :
+            u.risk_score >= 30 ? '#e8a020' : '#4caf50'
+          ),
+          borderRadius: 3,
+          barPercentage: 0.55
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { min: 0, max: 100, ticks: { stepSize: 25 } } }
+      }
+    });
+
+    // Severity heatmap — each cell is clickable for TRACE analysis
+    document.getElementById('heatmap').innerHTML = d.severity_heatmap
+      .map(h => `<div class="hm-cell ${h.status}" data-indicator="${h.label}" onclick="fetchIndicatorTRACE(this)" title="Click for TRACE analysis">${h.label}</div>`).join('');
+
+    // Recent incidents
+    document.getElementById('incident-list').innerHTML = d.recent_incidents.map(i => `
+      <div class="incident-item">
+        <div class="incident-time">${i.time}</div>
+        <div class="incident-body">
+          <div class="incident-user">${i.user} — ${i.action}</div>
+          <div class="incident-action">Location: ${i.location} · Risk: ${i.risk_score}/100</div>
+        </div>
+        <div class="severity-badge ${i.severity}">${i.severity}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('ai-response').innerHTML =
+      `<span>AI Response Engine:</span> ${d.ai_response}`;
+    document.getElementById('updated-time').textContent = new Date().toLocaleTimeString();
+
+    // TRACE — auto-render top threat on load
+    if (d.trace) {
+      const v = d.trace;
+      renderTRACE(
+        { severity: v.severity, origin: v.origin, findings: v.findings },
+        `Top Threat`,
+        `Highest-risk user: ${v.user}  ·  Risk: ${v.risk}/100  ·  Origin: ${v.origin}`
+      );
+    }
+  }
+
+  /* ── TRACE: click on heatmap cell ──────────────── */
+  async function fetchIndicatorTRACE(cell) {
+    document.querySelectorAll('.hm-cell').forEach(c => c.classList.remove('selected'));
+    cell.classList.add('selected');
+
+    const indicator = cell.dataset.indicator;
+    const d = await fetch('/api/trace?indicator=' + encodeURIComponent(indicator)).then(r => r.json());
+    renderTRACE(d, indicator, `Origin: ${d.origin}`);
+
+    document.getElementById('trace-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* ── TRACE: shared render ──────────────────────── */
+  function renderTRACE(d, label, subject) {
+    document.getElementById('trace-panel').style.display = 'block';
+    document.getElementById('trace-analysis-label').textContent = label;
+    document.getElementById('trace-subject').textContent = subject;
+
+    const tag = document.getElementById('trace-severity-tag');
+    tag.textContent = d.severity;
+    tag.className   = `trace-severity-tag ${d.severity}`;
+
+    document.getElementById('trace-threat').textContent     = d.findings.threat;
+    document.getElementById('trace-exposure').textContent   = d.findings.exposure;
+    document.getElementById('trace-root-cause').textContent = d.findings.root_cause;
+    document.getElementById('trace-actor').textContent      = d.findings.actor;
+    document.getElementById('trace-containment').innerHTML  =
+      d.findings.containment.map(s => `<li>${s}</li>`).join('');
+  }
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  });
+
+  // Init
+  loadExecutive();
+</script>
+</body>
+</html>
